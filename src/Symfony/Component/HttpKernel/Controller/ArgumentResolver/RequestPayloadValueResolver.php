@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,6 +66,7 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
         private readonly SerializerInterface&DenormalizerInterface $serializer,
         private readonly ?ValidatorInterface $validator = null,
         private readonly ?TranslatorInterface $translator = null,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -142,6 +144,8 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                     }
                     $payload = $e->getData();
                 }
+
+                $this->logger?->debug('RequestPayloadValueResolver resolved payload', ['payload' => $payload]);
 
                 if (null !== $payload && !\count($violations)) {
                     $constraints = $argument->constraints ?? null;
